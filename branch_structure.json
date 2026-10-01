@@ -1,0 +1,21 @@
+{
+  "default_branch": "dev",
+  "branches": [
+    "central-staging",
+    "dev",
+    "fix/4-normalize-auth-email",
+    "origin"
+  ],
+  "parent": {
+    "central-staging": "dev",
+    "dev": null,
+    "fix/4-normalize-auth-email": "dev",
+    "origin": "dev"
+  },
+  "order": [
+    "dev",
+    "central-staging",
+    "fix/4-normalize-auth-email",
+    "origin"
+  ]
+}
