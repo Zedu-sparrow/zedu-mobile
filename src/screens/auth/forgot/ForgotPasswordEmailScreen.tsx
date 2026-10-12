@@ -12,25 +12,49 @@ import { ACTIONS } from '@/store/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { createAuthStyles } from '@/theme/createScreenStyles';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const ForgotPasswordEmailScreen: React.FC = () => {
   const { colors } = useTheme();
   const styles = useMemo(() => createAuthStyles(colors), [colors]);
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [loading, setLoading] = useState(false);
   const { dispatch } = useDataContext();
 
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+
+    if (emailError) {
+      setEmailError('');
+    }
+  };
+
   const handleSubmit = async () => {
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setEmailError('Email address is required.');
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(trimmedEmail)) {
+      setEmailError('Enter a valid email address.');
+      return;
+    }
+
+    setEmailError('');
     setLoading(true);
 
     const { data, error } = await PostRequest('/auth/password-reset', {
-      email: email,
+      email: trimmedEmail,
     });
 
     if (!error) {
       dispatch({
         type: ACTIONS.AUTH_FLOW,
-        payload: { email: email, code: '' },
+        payload: { email: trimmedEmail, code: '' },
       });
       dispatch({ type: ACTIONS.SUCCESS, payload: data.message });
       navigation.navigate('ForgotPasswordCode');
@@ -71,7 +95,10 @@ const ForgotPasswordEmailScreen: React.FC = () => {
           label="Email Address"
           placeholder="Email"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange}
+          error={emailError}
+          keyboardType="email-address"
+          autoCapitalize="none"
           style={styles.input}
         />
         <AppButton
